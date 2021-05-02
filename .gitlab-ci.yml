@@ -47,9 +47,7 @@ build-docker-image:
   stage: build
   image: "docker:latest"
   script:
-    - cd ..
     - wget -O Dockerfile https://gitlab.com/calleum/hello-aws/-/raw/master/maven-dep-dockerfile
-    - cp -r syncer src
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/build/maven-syncer:latest .
     - docker push $CI_REGISTRY_IMAGE/build/maven-syncer:latest
