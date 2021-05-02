@@ -13,7 +13,7 @@ stages:
   - deploy
 
 maven-build:
-  image: $CI_REGISTRY_IMAGE/build/maven-syncer:latest
+  image: $CI_REGISTRY_IMAGE/build/maven-sync:latest
   stage: build
   script: "mvn package -B"
   artifacts:
