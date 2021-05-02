@@ -56,9 +56,9 @@ done
 shift $((OPTIND -1))
 
 if [ ${gitlab_access_token} == "" ]
-
 then
     >&2 echo "Please pass Gitlab Access Token to environment variable MY_ACCESS_TOKEN or include the token in program arguments with -t token"
+fi
 
 if ! eksctl get cluster -v 0 > /dev/null
 then
