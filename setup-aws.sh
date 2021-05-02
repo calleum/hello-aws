@@ -107,6 +107,6 @@ fi
 
     curl --request PUT --header "PRIVATE-TOKEN: ${MY_ACCESS_TOKEN}" "https://gitlab.com/api/v4/projects/26316511/variables" --form "key=AWS_SECRET_ACCESS_KEY" --form "value=${AWS_SECRET_ACCESS_KEY}" --form "masked=true" --form "protected=true" |  awk -F \" '/error/ { print $2 }'
 
-    curl --request PUT --header "PRIVATE-TOKEN: ${MY_ACCESS_TOKEN}" "https://gitlab.com/api/v4/projects/26316511/variables" --form "key=AWS_ACCESS_KEY_ID" --form "value=${AWS_SECRET_ACCESS_KEY}" --form "masked=true" --form "protected=true" |  awk -F \" '/error/ { print $2 }'
+    curl --request PUT --header "PRIVATE-TOKEN: ${MY_ACCESS_TOKEN}" "https://gitlab.com/api/v4/projects/26316511/variables" --form "key=AWS_ACCESS_KEY_ID" --form "value=${AWS_ACCESS_KEY_ID}" --form "masked=true" --form "protected=true" |  awk -F \" '/error/ { print $2 }'
 
     curl --request PUT --header "PRIVATE-TOKEN: ${MY_ACCESS_TOKEN}" "https://gitlab.com/api/v4/projects/26316511/variables" --form "key=AWS_DEFAULT_REGION" --form "value=${AWS_DEFAULT_REGION}" --form "masked=true" --form "protected=true"|  awk -F \" '/error/ { print $2 }'
