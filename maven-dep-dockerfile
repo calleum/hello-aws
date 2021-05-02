@@ -1,4 +1,6 @@
 FROM maven:3.8.1-jdk-11-slim as populate_cache_stage
+VOLUME /tmp
+ADD /*
 RUN mvn dependency:resolve
 
 

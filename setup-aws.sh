@@ -100,7 +100,7 @@ fi
     AWS_SECRET_ACCESS_KEY=$(echo "$KEY_JSON" | grep -i secret | awk -F \" '{ print $4 }')
 
     AWS_ACCESS_KEY_ID=$(echo "$KEY_JSON" | grep -i keyid | awk -F \" '{ print $4 }')
-)
+
     AWS_DEFAULT_REGION=${region}
 
 
