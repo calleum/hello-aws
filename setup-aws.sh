@@ -48,7 +48,7 @@ do
     K)
       kubeconfig="${OPTARG}"
       ;;
-    [?]
+  [?])
       usage
       exit 1
       ;;
