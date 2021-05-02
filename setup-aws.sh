@@ -11,6 +11,7 @@ region="${REGION-ap-southeast-2}"
 instance_type="${MACHINE_TYPE-t2.micro}"
 kubeconfig="${KUBECONFIG:-$HOME/.kube/config}"
 gitlab_access_token="${MY_ACCESS_TOKEN}-""}"
+#service_account="${SERVICE_ACCOUNT-tiller}"
 
 usage ()
 {
@@ -20,10 +21,7 @@ usage ()
   exit
 }
 
-
-
-
-while getopts c:n:k:r:i:t:K opt
+while getopts c:n:k:r:i:t:s:K opt
 do
   case "${opt}" in
     c)
@@ -43,6 +41,9 @@ do
       ;;
     t)
       gitlab_access_token="${OPTARG}"
+      ;;
+    s)
+      service_account="${OPTARG}"
       ;;
     K)
       kubeconfig="${OPTARG}"
@@ -67,15 +68,17 @@ then
 fi
     echo "Creating cluster..."
     eksctl create cluster --name="${cluster_name}" --nodes="${nodes}" --node-type "${instance_type}" --region="${region}"
-
     echo "Updating cluster config..."
     aws eks update-kubeconfig --name "${cluster_name}"
 
-#kubectl apply -f "${gitlab-service-account}"
-    echo "Updating cluster serice account for gitlab..."
+    echo "Updating cluster service account for gitlab..."
     kubectl apply -f gitlab-service-account.yaml
 
-## Environment variable MY_ACCESS_TOKEN must be set to gitlab access token or passed into program
+
+    ## Possibly need to create tiller service account here ##
+
+    helm init --service-account gitlab-service-account
+
     SECRET="$(kubectl get secrets | grep default-token| awk '{print $1}')"
     CA="$(kubectl get secret "$SECRET" -o jsonpath="{['data']['ca\.crt']}" | base64 -D)"
 

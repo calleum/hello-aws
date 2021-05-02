@@ -10,10 +10,10 @@ spec:
         app: hello-aws
     spec:
       containers:
-      - name: hello-aws
-        image: registry.gitlab.com/<VERSION>
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-      imagePullSecrets:
-        - name: registry.gitlab.com
+        - name: hello-aws
+          image: registry.gitlab.com/calleum/hello-aws:{{ .Values.image.tag }}
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080
+        imagePullSecrets:
+          - name: registry.gitlab.com
