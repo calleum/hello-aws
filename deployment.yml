@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-aws
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: hello-aws
+    spec:
+      containers:
+      - name: hello-aws
+        image: registry.gitlab.com/<VERSION>
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+        - name: registry.gitlab.com
