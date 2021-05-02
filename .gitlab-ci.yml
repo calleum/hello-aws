@@ -25,7 +25,6 @@ docker-build:
   script:
   - docker build -t registry.gitlab.com/${CONTAINER_IMAGE} .
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-  - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE}
   - docker push registry.gitlab.com/${CONTAINER_IMAGE} .
 
 k8s-deploy:
