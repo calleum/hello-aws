@@ -3,19 +3,28 @@ services:
   - docker:dind
 
 variables:
-  DOCKER_DRIVER: overlay
+  DOCKER_DRIVER: overlay2
   SPRING_PROFILES_ACTIVE: gitlab-ci
-  CONTAINER_IMAGE: calleum/hello-aws:${CI_COMMIT_SHORT_SHA}
+  CONTAINER_IMAGE: ${CI_PROJECT_PATH}:${CI_COMMIT_SHORT_SHA}
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
 stages:
+  - pre-build
   - build
   - package
   - deploy
 
+hello:
+  stage: pre-build
+  script: "printenv"
+
 maven-build:
   image: $CI_REGISTRY_IMAGE/build/maven-sync:latest
   stage: build
-  script: "mvn package -B"
+  cache:
+    paths:
+      - .m2/repository
+  script: "mvn ${MAVEN_OPTS} package -B"
   artifacts:
     paths:
       - target/*.jar
@@ -23,9 +32,9 @@ maven-build:
 docker-build:
   stage: package
   script:
-  - docker build -t registry.gitlab.com/${CONTAINER_IMAGE} .
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-  - docker push registry.gitlab.com/${CONTAINER_IMAGE}
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker build -t $CI_REGISTRY_IMAGE/$CONTAINER_IMAGE .
+  - docker push $CI_REGISTRY_IMAGE/$CONTAINER_IMAGE
 
 k8s-deploy:
   stage: deploy
@@ -46,8 +55,12 @@ build-docker-image:
     - docker:dind
   stage: build
   image: "docker:latest"
+  cache:
+    paths:
+      - .m2/repository
+
   script:
-    - wget -O Dockerfile https://gitlab.com/calleum/hello-aws/-/raw/master/maven-dep-dockerfile
+    - wget -O Dockerfile ${CI_PROJECT_URL}/raw/${CI_COMMIT_BRANCH}/maven-dep-dockerfile
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/build/maven-sync:latest .
     - docker push $CI_REGISTRY_IMAGE/build/maven-sync:latest
