@@ -1,7 +1,8 @@
 FROM maven:3.8.1-jdk-11-slim as populate_cache_stage
 VOLUME /tmp
 ADD . .
-RUN mvn dependency:resolve
+
+RUN mvn -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true dependency:resolve
 
 
 FROM maven:3.8.1-jdk-11-slim
