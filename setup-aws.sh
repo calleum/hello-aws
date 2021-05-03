@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 
 cluster_name=${CLUSTER_NAME-gitlab-cluster}
 nodes=${NUM_NODES-2}
@@ -90,34 +89,19 @@ then
   exit 1
 fi
     echo "Creating cluster..."
-    eksctl create cluster --name="${cluster_name}" --nodes="${nodes}" --node-type "${instance_type}" --region="${region}" --asg_access
+    #eksctl create cluster --name="${cluster_name}" --nodes="${nodes}" --node-type "${instance_type}" --region="${region}" --asg-access
     echo "Updating cluster config..."
-    aws eks update-kubeconfig --name "${cluster_name}"
+    #aws eks update-kubeconfig --name "${cluster_name}"
 
     echo "Updating cluster service account for gitlab..."
-    kubectl apply -f gitlab-service-account.yaml
-
-    SECRET="$(kubectl get secrets | grep default-token| awk '{print $1}')"
-    CA="$(kubectl get secret "$SECRET" -o jsonpath="{['data']['ca\.crt']}" | base64 -d)"
+    #kubectl apply -f gitlab-service-account.yaml
 
     echo "Updating gitlab environment variables..."
-    
-    test_variable "CERTIFICATE_AUTHORITY_DATA" "${CA}"
 
-    ENDPOINT="$(aws eks describe-cluster --region "${region}" --name "${cluster-name}" 2> /dev/null | awk '/endpoint/{print $2}' | sed 's/"//g' | sed 's/,//')"
-
-    test_variable "SERVER" "${ENDPOINT}"
-
-    GITLAB_SECRET="$(kubectl get secrets | grep gitlab-service-account-token| awk '{print $1}')"
-
-    G_TOKEN="$(kubectl describe secret "$GITLAB_SECRET")"
-
-    test_variable "USER_TOKEN" "${G_TOKEN}"
-
-    AWS_ID=$(aws iam get-user | grep ID | awk -F \" '{ print $4 }' )
+    AWS_ID=$(aws iam get-user | grep Id | awk -F \" '{ print $4 }' )
 
     test_variable "AWS_ID" "${AWS_ID}"
-    
+
     if [ -z "${AWS_SECRET_ACCESS_KEY}" ]
     then
         KEY_JSON=$(aws iam create-access-key)
@@ -128,13 +112,10 @@ fi
 
     fi
 
-    test_variable "AWS_SECRET_KEY" "${AWS_SECRET_KEY}"
+    test_variable "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
 
     test_variable "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
 
     test_variable "AWS_DEFAULT_REGION" "${region}"
 
-    test_variable "CLUSTER_NAME" "${cluster_name}"  
-
-
-
+    test_variable "CLUSTER_NAME" "${cluster_name}"
