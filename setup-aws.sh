@@ -29,7 +29,8 @@ usage ()
       curl -s --request PUT --header "PRIVATE-TOKEN: ${MY_ACCESS_TOKEN}" "https://gitlab.com/api/v4/projects/26316511/variables/${key}" --form "value=${value}" --form "masked=true" --form "protected=true"
 }
 
- test_variable(){
+# https://docs.gitlab.com/ee/api/project_level_variables.html
+ set_variable(){
       local key="${1}"
       local value="${2}"
       local test
@@ -100,7 +101,7 @@ fi
 
     AWS_ID=$(aws iam get-user | grep Id | awk -F \" '{ print $4 }' )
 
-    test_variable "AWS_ID" "${AWS_ID}"
+    set_variable "AWS_ID" "${AWS_ID}"
 
     if [ -z "${AWS_SECRET_ACCESS_KEY}" ]
     then
@@ -112,10 +113,10 @@ fi
 
     fi
 
-    test_variable "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
+    set_variable "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
 
-    test_variable "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
+    set_variable "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
 
-    test_variable "AWS_DEFAULT_REGION" "${region}"
+    set_variable "AWS_DEFAULT_REGION" "${region}"
 
-    test_variable "CLUSTER_NAME" "${cluster_name}"
+    set_variable "CLUSTER_NAME" "${cluster_name}"
