@@ -15,6 +15,7 @@ sudo mv /tmp/eksctl /usr/local/bin ```
 Run ``` aws configure ``` and input your aws credentials.
 
 Create a personal access token with api access to programmatically add variables to your project: [Personal Access Tokens Doc](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
+``` export MY_ACCESS_TOKEN=<your_token_here>```
 
 The default region is ap-southeast-2 and instance t2.micro.
 
