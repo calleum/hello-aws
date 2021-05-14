@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-aws
 spec:
   replicas: 2
+  selector:
+    matchLabels:
+      app: hello-aws
   template:
     metadata:
       labels:
@@ -15,8 +18,8 @@ spec:
           imagePullPolicy: Always
           ports:
           - containerPort: 8080
-          imagePullSecrets:
-          - name: registry-credentials
+      imagePullSecrets:
+        - name: registry-credentials-kube
 ---
 
 kind: Service
@@ -27,4 +30,7 @@ spec:
   selector:
     app: hello-aws
   ports:
-    - port: 5678 # Default port for image
+    - port: 8080
+      targetPort: 8080
+      name: http
+  type: NodePort

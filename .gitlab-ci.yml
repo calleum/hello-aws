@@ -5,7 +5,7 @@ services:
 variables:
   DOCKER_DRIVER: overlay2
   SPRING_PROFILES_ACTIVE: gitlab-ci
-  CONTAINER_IMAGE: ${CI_PROJECT_PATH}:${CI_COMMIT_SHORT_SHA}
+  CONTAINER_IMAGE: $CI_REGISTRY_IMAGE
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
 stages:
@@ -27,35 +27,28 @@ maven-build:
 docker-build:
   stage: package
   script:
+  - pwd
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - docker build -t $CI_REGISTRY_IMAGE/$CONTAINER_IMAGE .
-  - docker push $CI_REGISTRY_IMAGE/$CONTAINER_IMAGE
+  - docker build
+    -t $CONTAINER_IMAGE:latest
+    -t $CONTAINER_IMAGE:$CI_COMMIT_SHORT_SHA .
+  - docker push $CONTAINER_IMAGE:latest
 
 k8s-deploy:
   stage: deploy
-  image: dtzar/helm-kubectl
+  image: bearengineer/awscli-kubectl:latest
   services:
       - docker:dind
   variables:
       DOCKER_DRIVER: overlay2
       HELM_EXPERIMENTAL_OCI: 1
   script:
-    - apk add --no-cache \
-        python3 \
-        py3-pip \
-        && pip3 install --upgrade pip \
-        && pip3 install \
-        awscli \
-        && rm -rf /var/cache/apk/*
     - aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $CLUSTER_NAME
-    - kubectl apply -f eks-admin-service-account.yaml
-    - kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}')
-    - helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-    - helm repo update
-    - helm install nginx-ingress stable/nginx-ingress -f nginx-ingress-values.yaml -n kube-system
     - sed -i "s/<VERSION>/${CI_COMMIT_SHORT_SHA}/g" deployment.yaml
+    - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/aws/deploy.yaml
     - kubectl apply -f deployment.yaml
-    
+
+
 build-docker-image:
   variables:
     DOCKER_HOST: tcp://docker:2375
@@ -69,6 +62,7 @@ build-docker-image:
       - .m2/repository
 
   script:
+    - echo $CI_REGISTRY_IMAGE
     - wget -O Dockerfile ${CI_PROJECT_URL}/raw/${CI_COMMIT_BRANCH}/maven-dep-dockerfile
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/build/maven-sync:latest .
