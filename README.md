@@ -36,6 +36,6 @@ kubectl get pods --all-namespaces -o wide
 
 # To tear down the cluster and nodes:
 
-eksctl delete cluster --name my-cluster --region us-west-2
+eksctl delete cluster --name my-cluster --region ap-southeast-2
 
 ```
