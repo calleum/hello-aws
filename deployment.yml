@@ -11,9 +11,20 @@ spec:
     spec:
       containers:
         - name: hello-aws
-          image: registry.gitlab.com/<VERSION>
+          image: registry.gitlab.com/calleum/hello-aws:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 8080
-        imagePullSecrets:
-          - name: registry.gitlab.com
+          imagePullSecrets:
+          - name: registry-credentials
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello-aws-service
+spec:
+  selector:
+    app: hello-aws
+  ports:
+    - port: 5678 # Default port for image

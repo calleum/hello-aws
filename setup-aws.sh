@@ -90,12 +90,12 @@ then
   exit 1
 fi
     echo "Creating cluster..."
-    #eksctl create cluster --name="${cluster_name}" --nodes="${nodes}" --node-type "${instance_type}" --region="${region}" --asg-access
+    eksctl create cluster --name="${cluster_name}" --nodes="${nodes}" --node-type "${instance_type}" --region="${region}" --asg-access
     echo "Updating cluster config..."
-    #aws eks update-kubeconfig --name "${cluster_name}"
+    aws eks update-kubeconfig --name "${cluster_name}"
 
     echo "Updating cluster service account for gitlab..."
-    #kubectl apply -f gitlab-service-account.yaml
+    kubectl apply -f gitlab-service-account.yaml
 
     echo "Updating gitlab environment variables..."
 
